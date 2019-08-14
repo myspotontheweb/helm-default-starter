@@ -1,0 +1,64 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.<CHARTNAME>.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- if .Values.<CHARTNAME>.image.name }}
+          image: {{ .Values.<CHARTNAME>.image.name }}
+          {{- else }}
+          image: {{ .Values.<CHARTNAME>.image.repository }}:{{ .Values.<CHARTNAME>.image.tag }}
+          {{- end }}
+          {{- with .Values.<CHARTNAME>.image.command }}
+          command:
+            - {{ .Values.<CHARTNAME>.image.command }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.<CHARTNAME>.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.<CHARTNAME>.service.targetPort }}
+          envFrom:
+            - secretRef:
+                name: {{ template "fullname" . }}
+          env:
+            - name: DOGSTATSD_HOST_IP
+              valueFrom:
+                fieldRef:
+                   fieldPath: status.hostIP
+            - name:  DATADOG_URL
+              value: "$(DOGSTATSD_HOST_IP):8125"                
+          {{- with .Values.<CHARTNAME>.probes }}
+{{ toYaml . | indent 10 }}
+          {{- end }}
+          {{- with .Values.<CHARTNAME>.resources }}
+          resources:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+      {{- with .Values.<CHARTNAME>.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.<CHARTNAME>.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.<CHARTNAME>.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}

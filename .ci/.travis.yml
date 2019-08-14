@@ -1,0 +1,28 @@
+sudo: required
+language: generic
+services:
+  - docker
+
+jobs:
+  include:
+
+  - stage: deploy
+    if: branch IN (master, beta)
+    env:
+      - IMAGE_REPO=myspotontheweb/$FILTERED_NAME
+      - COMMIT_TAG=$IMAGE_REPO:$TRAVIS_BRANCH-$TRAVIS_COMMIT
+      - LATEST_TAG=$IMAGE_REPO:$TRAVIS_BRANCH-latest
+      - BUILD_TAG=$IMAGE_REPO:$TRAVIS_BRANCH-build-env
+    before_script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+    script:
+      # Pull cached image layers (if exist)
+      - docker pull $LATEST_TAG || true
+      - docker pull $BUILD_TAG || true
+      # Build using cached layers
+      - docker build -t $BUILD_TAG --cache-from $BUILD_TAG --target build-env .
+      - docker build -t $COMMIT_TAG -t $LATEST_TAG --cache-from $BUILD_TAG --cache-from $LATEST_TAG .
+      # Push image tags
+      - docker push $COMMIT_TAG
+      - docker push $LATEST_TAG
+      - docker push $BUILD_TAG

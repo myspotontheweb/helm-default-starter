@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    {{- with .Values.<CHARTNAME>.service.hostname }}
+    external-dns.alpha.kubernetes.io/hostname: {{ . }}
+    {{- end }}
+    {{- with .Values.<CHARTNAME>.service.sslCertArn }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ . }}
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+    {{- end }}
+spec:
+  type: {{ .Values.<CHARTNAME>.service.type }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.<CHARTNAME>.service.targetPort }}
+    - name: https
+      port: 443
+      targetPort: {{ .Values.<CHARTNAME>.service.targetPort }}
+  selector:
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}

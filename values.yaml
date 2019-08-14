@@ -1,0 +1,36 @@
+
+secret:
+  DB_HOST: db
+  DB_PASS: root
+  DB_USER: dev
+  REDIS_DATA: redis:6379
+  REDIS_DLM: redis:6379
+  REDIS_SESSIONS: redis:6379
+
+<CHARTNAME>:
+  replicaCount: 2
+  image:
+    repository: myspotontheweb/<CHARTNAME>
+    tag: stable
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    targetPort: <PORT>
+  resources:
+    requests:
+      cpu: 0.2
+      memory: 64Mi
+  nodeSelector: {}
+  tolerations: {}
+  affinity: {}
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /
+        port: <PORT>
+      initialDelaySeconds: 5
+    readinessProbe:
+      httpGet:
+        path: /
+        port: <PORT>
+
