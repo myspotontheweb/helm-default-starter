@@ -16,6 +16,8 @@ helm plugin install https://github.com/myspotontheweb/helm-starter-plugin.git
 # Usage
 
 ```
+export GIT_PROTO=https://github.com/
+
 helm starter NAME=my-project NAMESPACE=myteam PORT=9001 ORG=myspotontheweb STARTER=default
 ```
 
