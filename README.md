@@ -6,17 +6,17 @@ They're handy in order to initialize a new project for deployment onto Kubernete
 
 # Installation
 
-This starter is automatically installed by the helm [pipeline plugin](https://github.com/myspotontheweb/helm-pipeline-plugin)
+This starter is automatically installed by the helm [starter plugin](https://github.com/myspotontheweb/helm-starter-plugin)
 
 ```
 sudo apt-get install -y make git gettext-base
-helm plugin install https://github.com/myspotontheweb/helm-pipeline-plugin.git
+helm plugin install https://github.com/myspotontheweb/helm-starter-plugin.git
 ```
 
 # Usage
 
 ```
-helm pipeline NAME=my-project NAMESPACE=myteam PORT=9001 ORG=myspotontheweb STARTER=default
+helm starter NAME=my-project NAMESPACE=myteam PORT=9001 ORG=myspotontheweb STARTER=default
 ```
 
 ## Recreating files
@@ -24,12 +24,12 @@ helm pipeline NAME=my-project NAMESPACE=myteam PORT=9001 ORG=myspotontheweb STAR
 You can regenerate the files by first deleting them
 
 ```
-$ helm pipeline clean
+$ helm starter clean
 rm -rf chart
 rm -f Dockerfile
 rm -f .travis.yml
 
-$ helm pipeline NAME=my-project NAMESPACE=myteam PORT=9001 ORG=myspotontheweb STARTER=default
+$ helm starter NAME=my-project NAMESPACE=myteam PORT=9001 ORG=myspotontheweb STARTER=default
 Creating myproject
 cat chart/.ci/Dockerfile | envsubst '$NAME $FILTERED_NAME $NAMESPACE $PORT' > Dockerfile
 cat chart/.ci/.travis.yml | envsubst '$NAME $FILTERED_NAME $NAMESPACE $PORT' > .travis.yml
@@ -40,6 +40,6 @@ cat chart/.ci/.travis.yml | envsubst '$NAME $FILTERED_NAME $NAMESPACE $PORT' > .
 Helm chart starter packs are stored under the helm client homedir: *~/.helm/starters*
 
 ```
-$ helm pipeline clean-starter STARTER=default
+$ helm starter clean-starter STARTER=default
 rm -rf /home/mark/.helm/starters/default
 ```
